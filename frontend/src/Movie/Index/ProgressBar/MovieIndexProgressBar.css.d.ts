@@ -4,6 +4,7 @@ interface CssExports {
   'progress': string;
   'progressBar': string;
   'progressRadius': string;
+  'textStatus': string;
 }
 export const cssExports: CssExports;
 export default cssExports;

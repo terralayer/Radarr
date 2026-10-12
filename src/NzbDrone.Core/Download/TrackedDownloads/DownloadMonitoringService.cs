@@ -58,7 +58,7 @@ namespace NzbDrone.Core.Download.TrackedDownloads
             _manageCommandQueue.Push(new RefreshMonitoredDownloadsCommand(), CommandPriority.High);
         }
 
-        private void Refresh()
+        private void Refresh(bool rescanCompletedDownloads = false)
         {
             _refreshDebounce.Pause();
             try
@@ -76,7 +76,10 @@ namespace NzbDrone.Core.Download.TrackedDownloads
 
                 _trackedDownloadService.UpdateTrackable(trackedDownloads);
                 _eventAggregator.PublishEvent(new TrackedDownloadRefreshedEvent(trackedDownloads));
-                _manageCommandQueue.Push(new ProcessMonitoredDownloadsCommand(), CommandPriority.High);
+                _manageCommandQueue.Push(new ProcessMonitoredDownloadsCommand
+                {
+                    RescanCompletedDownloads = rescanCompletedDownloads
+                }, CommandPriority.High);
             }
             finally
             {
@@ -156,7 +159,7 @@ namespace NzbDrone.Core.Download.TrackedDownloads
 
         public void Execute(RefreshMonitoredDownloadsCommand message)
         {
-            Refresh();
+            Refresh(message.RescanCompletedDownloads);
         }
 
         public void Execute(CheckForFinishedDownloadCommand message)

@@ -13,6 +13,7 @@ interface ProgressBarProps {
   progress: number;
   precision?: number;
   showText?: boolean;
+  allowMultiline?: boolean;
   text?: string;
   kind?: Extract<Kind, keyof typeof styles>;
   size?: Extract<Size, keyof typeof styles>;
@@ -26,6 +27,7 @@ function ProgressBar({
   progress,
   precision = 1,
   showText = false,
+  allowMultiline = false,
   text,
   kind = 'primary',
   size = 'medium',
@@ -49,7 +51,12 @@ function ProgressBar({
                 className={classNames(styles.backTextContainer, styles[kind])}
                 style={{ width: actualWidth }}
               >
-                <div className={styles.backText}>
+                <div
+                  className={classNames(
+                    styles.backText,
+                    allowMultiline && styles.multiline
+                  )}
+                >
                   <div>{progressText}</div>
                 </div>
               </div>
@@ -77,7 +84,10 @@ function ProgressBar({
                 style={{ width: progressPercent }}
               >
                 <div
-                  className={styles.frontText}
+                  className={classNames(
+                    styles.frontText,
+                    allowMultiline && styles.multiline
+                  )}
                   style={{ width: actualWidth }}
                 >
                   <div>{progressText}</div>

@@ -226,6 +226,7 @@ function MovieIndexPoster(props: MovieIndexPosterProps) {
         width={posterWidth}
         detailedProgressBar={detailedProgressBar}
         bottomRadius={false}
+        useTextStatus={true}
       />
 
       {showTitle ? (

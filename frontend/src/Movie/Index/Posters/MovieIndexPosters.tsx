@@ -7,6 +7,7 @@ import AppState from 'App/State/AppState';
 import useMeasure from 'Helpers/Hooks/useMeasure';
 import { SortDirection } from 'Helpers/Props/sortDirections';
 import MovieIndexPoster from 'Movie/Index/Posters/MovieIndexPoster';
+import { shouldWrapMovieStatusText } from 'Movie/Index/ProgressBar/getMovieStatusText';
 import Movie from 'Movie/Movie';
 import dimensions from 'Styles/Variables/dimensions';
 import getIndexOfFirstCharacter from 'Utilities/Array/getIndexOfFirstCharacter';
@@ -19,8 +20,8 @@ const columnPadding = parseInt(dimensions.movieIndexColumnPadding);
 const columnPaddingSmallScreen = parseInt(
   dimensions.movieIndexColumnPaddingSmallScreen
 );
-const progressBarHeight = parseInt(dimensions.progressBarSmallHeight);
 const detailedProgressBarHeight = parseInt(dimensions.progressBarMediumHeight);
+const largeProgressBarHeight = parseInt(dimensions.progressBarLargeHeight);
 
 const ADDITIONAL_COLUMN_COUNT: Record<string, number> = {
   small: 3,
@@ -139,7 +140,6 @@ export default function MovieIndexPosters(props: MovieIndexPostersProps) {
 
   const rowHeight = useMemo(() => {
     const {
-      detailedProgressBar,
       showTitle,
       showMonitored,
       showQualityProfile,
@@ -156,7 +156,9 @@ export default function MovieIndexPosters(props: MovieIndexPostersProps) {
 
     const heights = [
       posterHeight,
-      detailedProgressBar ? detailedProgressBarHeight : progressBarHeight,
+      shouldWrapMovieStatusText(posterWidth)
+        ? largeProgressBarHeight
+        : detailedProgressBarHeight,
       isSmallScreen ? columnPaddingSmallScreen : columnPadding,
     ];
 
@@ -273,7 +275,7 @@ export default function MovieIndexPosters(props: MovieIndexPostersProps) {
     }
 
     return heights.reduce((acc, height) => acc + height, 0);
-  }, [isSmallScreen, posterOptions, sortKey, posterHeight]);
+  }, [isSmallScreen, posterOptions, sortKey, posterHeight, posterWidth]);
 
   useEffect(() => {
     const current = scrollerRef.current;

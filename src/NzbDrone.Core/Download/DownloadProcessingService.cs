@@ -44,6 +44,15 @@ namespace NzbDrone.Core.Download
             }
         }
 
+        private static bool ShouldRescanCompletedDownload(TrackedDownload trackedDownload)
+        {
+            return trackedDownload.DownloadItem.Status == DownloadItemStatus.Completed &&
+                   trackedDownload.RemoteMovie?.Movie != null &&
+                   trackedDownload.State is TrackedDownloadState.Downloading or
+                       TrackedDownloadState.ImportBlocked or
+                       TrackedDownloadState.ImportPending;
+        }
+
         public void Execute(ProcessMonitoredDownloadsCommand message)
         {
             var enableCompletedDownloadHandling = _configService.EnableCompletedDownloadHandling;
@@ -58,7 +67,9 @@ namespace NzbDrone.Core.Download
                     // Process completed items followed by failed, this allows failed imports to have
                     // their state changed and be processed immediately instead of the next execution.
 
-                    if (enableCompletedDownloadHandling && trackedDownload.State == TrackedDownloadState.ImportPending)
+                    if (enableCompletedDownloadHandling &&
+                        (trackedDownload.State == TrackedDownloadState.ImportPending ||
+                         (message.RescanCompletedDownloads && ShouldRescanCompletedDownload(trackedDownload))))
                     {
                         _completedDownloadService.Import(trackedDownload);
                     }

@@ -97,6 +97,12 @@
   cursor: default;
 }
 
+.multiline {
+  white-space: normal;
+  line-height: 10px;
+  font-size: 10px;
+}
+
 .small {
   height: $progressBarSmallHeight;
 

@@ -20,3 +20,14 @@
 
   transition: width 200ms ease;
 }
+
+.textStatus {
+  composes: progressBar from '~Components/ProgressBar.css';
+
+  background-color: #333;
+  transition: width 200ms ease;
+}
+
+.textStatus.textStatus {
+  background-color: #333;
+}

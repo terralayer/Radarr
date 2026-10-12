@@ -12,6 +12,7 @@ interface CssExports {
   'inverse': string;
   'large': string;
   'medium': string;
+  'multiline': string;
   'primary': string;
   'progressBar': string;
   'purple': string;

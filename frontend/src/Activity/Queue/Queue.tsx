@@ -86,7 +86,6 @@ function Queue() {
   const isRefreshMonitoredDownloadsExecuting = useSelector(
     createCommandExecutingSelector(commandNames.REFRESH_MONITORED_DOWNLOADS)
   );
-
   const shouldBlockRefresh = useRef(false);
   const currentQueue = useRef<ReactElement | null>(null);
 
@@ -139,6 +138,7 @@ function Queue() {
     dispatch(
       executeCommand({
         name: commandNames.REFRESH_MONITORED_DOWNLOADS,
+        rescanCompletedDownloads: true,
       })
     );
   }, [dispatch]);

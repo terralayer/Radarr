@@ -9,6 +9,9 @@ import { MovieStatus } from 'Movie/Movie';
 import { MovieFile } from 'MovieFile/MovieFile';
 import getProgressBarKind from 'Utilities/Movie/getProgressBarKind';
 import translate from 'Utilities/String/translate';
+import getMovieStatusText, {
+  shouldWrapMovieStatusText,
+} from './getMovieStatusText';
 import styles from './MovieIndexProgressBar.css';
 
 interface MovieIndexProgressBarProps {
@@ -22,6 +25,7 @@ interface MovieIndexProgressBarProps {
   detailedProgressBar: boolean;
   bottomRadius?: boolean;
   isStandAlone?: boolean;
+  useTextStatus?: boolean;
 }
 
 function MovieIndexProgressBar({
@@ -35,6 +39,7 @@ function MovieIndexProgressBar({
   detailedProgressBar,
   bottomRadius,
   isStandAlone,
+  useTextStatus = false,
 }: MovieIndexProgressBarProps) {
   const queueDetails: MovieQueueDetails = useSelector(
     createMovieQueueItemsDetailsSelector(movieId)
@@ -43,6 +48,20 @@ function MovieIndexProgressBar({
   const progress = 100;
   const queueStatusText =
     queueDetails.count > 0 ? translate('Downloading') : null;
+
+  const statusText = getMovieStatusText(
+    {
+      hasFile,
+      monitored,
+      status,
+    },
+    {
+      deleted: translate('Deleted'),
+      downloaded: translate('Downloaded'),
+      monitored: translate('Monitored'),
+      unmonitored: translate('Unmonitored'),
+    }
+  );
 
   let movieStatus = translate('NotAvailable');
   if (hasFile) {
@@ -57,23 +76,39 @@ function MovieIndexProgressBar({
     ? styles.progressRadius
     : styles.progress;
   const containerClassName = isStandAlone ? undefined : attachedClassName;
-
-  return (
-    <ProgressBar
-      className={styles.progressBar}
-      containerClassName={containerClassName}
-      progress={progress}
-      kind={getProgressBarKind(
+  const progressBarKind = useTextStatus
+    ? 'default'
+    : getProgressBarKind(
         status,
         monitored,
         hasFile,
         isAvailable,
         queueDetails.count > 0
-      )}
-      size={detailedProgressBar ? sizes.MEDIUM : sizes.SMALL}
-      showText={detailedProgressBar}
+      );
+  const wrapStatusText = useTextStatus && shouldWrapMovieStatusText(width);
+  let progressBarSize: 'small' | 'medium' | 'large' = sizes.SMALL;
+  if (useTextStatus || detailedProgressBar) {
+    progressBarSize = sizes.MEDIUM;
+  }
+
+  if (wrapStatusText) {
+    progressBarSize = sizes.LARGE;
+  }
+  const progressBarText = useTextStatus
+    ? statusText
+    : queueStatusText || movieStatus;
+
+  return (
+    <ProgressBar
+      className={useTextStatus ? styles.textStatus : styles.progressBar}
+      containerClassName={containerClassName}
+      progress={progress}
+      kind={progressBarKind}
+      size={progressBarSize}
+      showText={useTextStatus || detailedProgressBar}
+      allowMultiline={wrapStatusText}
       width={width}
-      text={queueStatusText ? queueStatusText : movieStatus}
+      text={progressBarText}
     />
   );
 }
