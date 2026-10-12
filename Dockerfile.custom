@@ -1,0 +1,30 @@
+FROM node:20.11-bookworm-slim AS frontend
+
+WORKDIR /src
+
+COPY package.json yarn.lock ./
+
+RUN corepack enable && yarn install --frozen-lockfile --network-timeout 120000
+
+COPY . ./
+
+RUN yarn build --env production
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS backend
+
+WORKDIR /src
+
+COPY . ./
+
+RUN dotnet msbuild -restore src/Radarr.sln \
+    -p:SelfContained=True \
+    -p:Configuration=Release \
+    -p:Platform=Posix \
+    -p:RuntimeIdentifiers=linux-x64 \
+    -p:RunAnalyzers=false \
+    -t:PublishAllRids
+
+FROM ghcr.io/home-operations/radarr:6.4.4.10684
+
+COPY --from=backend /src/_output/net8.0/linux-x64/publish/ /app/bin/
+COPY --from=frontend /src/_output/UI/ /app/bin/UI/
