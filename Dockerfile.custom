@@ -20,11 +20,11 @@ RUN dotnet msbuild -restore src/Radarr.sln \
     -p:SelfContained=True \
     -p:Configuration=Release \
     -p:Platform=Posix \
-    -p:RuntimeIdentifiers=linux-x64 \
+    -p:RuntimeIdentifiers=linux-musl-x64 \
     -p:RunAnalyzers=false \
     -t:PublishAllRids
 
 FROM ghcr.io/home-operations/radarr:6.4.4.10684
 
-COPY --from=backend /src/_output/net8.0/linux-x64/publish/ /app/bin/
+COPY --from=backend /src/_output/net8.0/linux-musl-x64/publish/ /app/bin/
 COPY --from=frontend /src/_output/UI/ /app/bin/UI/
